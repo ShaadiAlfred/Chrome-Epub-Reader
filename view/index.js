@@ -104,7 +104,7 @@ function createAnchorTagsForChapters(rendition, parentEl, chapters, isNested = f
 
         parentEl.append($listItem);
 
-        if (chapter.subitems) {
+        if (chapter.subitems.length) {
             $ul = document.createElement("ul");
             $listItem.appendChild($ul);
             createAnchorTagsForChapters(rendition, $ul, chapter.subitems, true);
