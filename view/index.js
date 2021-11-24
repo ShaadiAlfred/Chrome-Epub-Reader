@@ -1,5 +1,6 @@
 let isDarkMode = false;
 let isContinuous = false;
+let isTOCVisible = true;
 
 function cleanReaderElement(rendition) {
     rendition.clear();
@@ -132,6 +133,33 @@ function initEpubjs(file) {
         const $menuList = document.querySelector(".menu-list");
         createAnchorTagsForChapters(rendition, $menuList, toc);
 
+        // Toggle TOC
+        document.querySelector("#toggle-toc").addEventListener("click", (e) => {
+            e.preventDefault();
+
+            if (isTOCVisible) {
+                document.querySelector("#toc-menu").classList.add("is-0");
+                document.querySelector("#reader-column").classList.remove("is-three-quarters");
+            } else {
+                document.querySelector("#toc-menu").classList.remove("is-0");
+                document.querySelector("#reader-column").classList.add("is-three-quarters");
+            }
+
+            rendition.clear();
+            let currentChapter = document.querySelector(".is-active");
+            if (currentChapter) {
+                currentChapter = currentChapter.dataset.href;
+                rendition.display(currentChapter);
+            } else {
+                rendition.display();
+            }
+
+
+            isTOCVisible = ! isTOCVisible;
+
+            return false;
+        });
+
         // Dark Mode
         document.querySelector("#dark-mode-toggle").addEventListener("click", () => {
             if (isDarkMode) {
@@ -241,6 +269,10 @@ function renderReader() {
             </div>
             <div id="navbarBasicExample" class="navbar-menu">
                 <div class="navbar-start">
+                    <a id="toggle-toc" class="navbar-item">
+                        Toggle
+                    </a>
+
                     <a id="continuous" class="navbar-item">
                         Continuous
                     </a>
@@ -275,13 +307,13 @@ function renderReader() {
         </nav>
     
         <div id="content" class="columns">
-            <div class="column">
+            <div id="toc-menu" class="column">
                 <aside class="menu">
                     <ul class="menu-list"></ul>
                 </aside>
             </div>
 
-            <div class="column is-three-quarters">
+            <div id="reader-column" class="column is-three-quarters">
                 <div id="reader"></div>
             </div>
         </div>
