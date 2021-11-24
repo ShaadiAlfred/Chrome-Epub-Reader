@@ -28,6 +28,7 @@ function displayReaderWithDefaultReadingMode(book, chapter = null) {
         width: "100%",
         height: "100%",
         overflow: "auto",
+        allowScriptedContent: true,
     });
 
     const removePadding = () => {
@@ -212,7 +213,8 @@ function initEpubjs(file) {
                     flow: "scrolled",
                     width: "100%",
                     height: "100%",
-                    overflow: "scroll"
+                    overflow: "scroll",
+                    allowScriptedContent: true,
                 });
 
                 rendition.display().then(() => {
