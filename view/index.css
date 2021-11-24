@@ -33,3 +33,7 @@ aside.menu {
 #font-size {
     margin-top: 8px;
 }
+.epub-view,
+.epub-view iframe {
+	width: 100% !important;
+}
