@@ -10,8 +10,13 @@
 #reader {
     height: 100%;
     width: 100%;
-    overflow: hidden;
 }
 #font-size {
     margin-top: 8px;
+}
+.epub-container::-webkit-scrollbar {
+    width: 0 !important
+}
+.epub-container {
+    overflow: -moz-scrollbars-none;
 }

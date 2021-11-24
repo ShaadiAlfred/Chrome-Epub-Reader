@@ -1,8 +1,8 @@
 let isDarkMode = false;
 let isContinuous = false;
 
-function cleanReaderElement() {
-    document.querySelector("#reader").innerHTML = "";
+function cleanReaderElement(rendition) {
+    rendition.destroy();
 }
 
 function defineThemes(rendition) {
@@ -20,7 +20,7 @@ function defineThemes(rendition) {
 }
 
 function displayReaderWithDefaultReadingMode(book, chapter = null) {
-    const rendition = book.renderTo("reader", { flow: "scrolled-doc", width: "100%", height: "100%" });
+    const rendition = book.renderTo("reader", { flow: "scrolled-doc", width: "100%", height: "fit-content" });
     if (chapter != null) {
         const displayed = rendition.display(chapter);
     } else {
@@ -28,6 +28,62 @@ function displayReaderWithDefaultReadingMode(book, chapter = null) {
     }
 
     return rendition;
+}
+
+function scrollToChapterId(anchorHref) {
+    const elId = anchorHref.substr(anchorHref.indexOf("#"));
+    const $el = document.querySelector(elId);
+    if ($el) {
+        $el.scrollIntoView(false);
+        window.scrollY(-56);
+    } else {
+        window.scrollTo(0, 0);
+    }
+}
+
+function addEventToTOCEl(rendition, el) {
+    const $menuList = document.querySelector(".menu-list");
+
+    el.addEventListener("click", e => {
+        e.preventDefault();
+
+        rendition.display(el.dataset.href).then(() => {
+            scrollToChapterId(el.dataset.href);
+        });
+
+        $menuList.querySelector(".is-active").classList.remove("is-active");
+
+        el.classList.add("is-active");
+
+        return false;
+    });
+}
+
+function createAnchorTagsForChapters(rendition, parentEl, chapters, isNested = false) {
+    chapters.forEach((chapter, idx) => {
+        const $listItem = document.createElement("li");
+
+        const $anchor = document.createElement("a");
+        $anchor.textContent = chapter.label;
+        $anchor.dataset.href = chapter.href;
+
+        if (!isNested && idx == 0) {
+            $anchor.classList.add("is-active");
+        }
+
+        addEventToTOCEl(rendition, $anchor);
+
+        $listItem.append($anchor);
+
+        parentEl.append($listItem);
+
+        if (chapter.subitems) {
+            $ul = document.createElement("ul");
+            $listItem.appendChild($ul);
+            createAnchorTagsForChapters(rendition, $ul, chapter.subitems, true);
+        }
+    });
+
 }
 
 function initEpubjs(file) {
@@ -38,35 +94,8 @@ function initEpubjs(file) {
     book.loaded.navigation.then((toc) => {
 
         // TOC
-        $menuList = document.querySelector(".menu-list");
-
-        toc.forEach((chapter, idx) => {
-            const $listItem = document.createElement("li");
-
-            const $anchor = document.createElement("a");
-            $anchor.textContent = chapter.label;
-            $anchor.dataset.href = chapter.href;
-
-            if (idx == 0) {
-                $anchor.classList.add("is-active");
-            }
-
-            $anchor.addEventListener("click", e => {
-                e.preventDefault();
-
-                rendition.display($anchor.dataset.href);
-
-                $menuList.querySelector(".is-active").classList.remove("is-active");
-
-                $anchor.classList.add("is-active");
-
-                return false;
-            });
-
-            $listItem.append($anchor);
-
-            $menuList.append($listItem);
-        });
+        const $menuList = document.querySelector(".menu-list");
+        createAnchorTagsForChapters(rendition, $menuList, toc);
 
         // Dark Mode
         document.querySelector("#dark-mode-toggle").addEventListener("click", () => {
@@ -100,21 +129,22 @@ function initEpubjs(file) {
             const currentChapter = document.querySelector(".is-active").dataset.href;
 
             if (isContinuous) {
-                cleanReaderElement();
+                cleanReaderElement(rendition);
                 rendition = displayReaderWithDefaultReadingMode(book, currentChapter);
 
                 e.target.innerText = "Continuous";
             } else {
-                cleanReaderElement();
+                cleanReaderElement(rendition);
 
                 rendition = book.renderTo("reader", {
                     manager: "continuous",
                     flow: "scrolled",
                     width: "100%",
-                    height: "100%",
+                    height: "fit-content",
                 });
 
-                const display = rendition.display(currentChapter);
+                console.log(currentChapter)
+                const display = rendition.display();
 
                 e.target.innerText = "By Chapter";
             }
