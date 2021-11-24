@@ -242,9 +242,10 @@ function initEpubjs(file) {
 
             if (nextSection) {
                 rendition.display(nextSection.href).then(() => {
-                    highlightNextOrPreviousChapter(nextSection.href);
                     mapKeys();
                 });
+
+                highlightNextOrPreviousChapter(nextSection.href);
             }
             
             return false;
@@ -257,9 +258,10 @@ function initEpubjs(file) {
 
             if (prevSection) {
                 rendition.display(prevSection.href).then(() => {
-                    highlightNextOrPreviousChapter(prevSection.href);
                     mapKeys();
                 });
+
+                highlightNextOrPreviousChapter(prevSection.href);
             }
             
             return false;
