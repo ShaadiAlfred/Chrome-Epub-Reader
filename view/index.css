@@ -1,3 +1,18 @@
+html {
+    overflow: hidden;
+}
+body, #main {
+    overflow: hidden;
+    height: 100vh;
+}
+#content,
+aside.menu,
+#reader {
+    max-height: calc(100vh - 3.5rem);
+}
+aside.menu {
+    overflow-y: auto;
+}
 .file.has-name.is-boxed {
     min-width: 450px;
 }
@@ -8,15 +23,13 @@
     max-width: 35em;
 }
 #reader {
-    height: 100%;
+    height: 110%;
     width: 100%;
+}
+.epub-container {
+    max-height: 100vh;
+    overflow-x: hidden !important;
 }
 #font-size {
     margin-top: 8px;
-}
-.epub-container::-webkit-scrollbar {
-    width: 0 !important
-}
-.epub-container {
-    overflow: -moz-scrollbars-none;
 }

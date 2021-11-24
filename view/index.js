@@ -2,7 +2,9 @@ let isDarkMode = false;
 let isContinuous = false;
 
 function cleanReaderElement(rendition) {
+    rendition.clear();
     rendition.destroy();
+    document.querySelector("#reader").innerHTML = "";
 }
 
 function defineThemes(rendition) {
@@ -20,11 +22,22 @@ function defineThemes(rendition) {
 }
 
 function displayReaderWithDefaultReadingMode(book, chapter = null) {
-    const rendition = book.renderTo("reader", { flow: "scrolled-doc", width: "100%", height: "fit-content" });
+    const rendition = book.renderTo("reader", {
+        flow: "scrolled-doc",
+        width: "100%",
+        height: "100%",
+        overflow: "auto"
+    });
+
+    const removePadding = () => {
+        document.querySelector(".epub-container").style.paddingBottom = "unset";
+    }
+
+    let displayed;
     if (chapter != null) {
-        const displayed = rendition.display(chapter);
+        displayed = rendition.display(chapter).then(removePadding);
     } else {
-        const displayed = rendition.display();
+        displayed = rendition.display().then(removePadding);
     }
 
     return rendition;
@@ -46,6 +59,8 @@ function addEventToTOCEl(rendition, el) {
 
     el.addEventListener("click", e => {
         e.preventDefault();
+
+        rendition.clear();
 
         rendition.display(el.dataset.href).then(() => {
             scrollToChapterId(el.dataset.href);
@@ -163,10 +178,13 @@ function initEpubjs(file) {
                     manager: "continuous",
                     flow: "scrolled",
                     width: "100%",
-                    height: "fit-content",
+                    height: "100%",
+                    overflow: "scroll"
                 });
 
-                const display = rendition.display();
+                rendition.display().then(() => {
+                    document.querySelector(".epub-container").style.paddingBottom = "50vh";
+                });
 
                 e.target.innerText = "By Chapter";
             }
@@ -215,7 +233,7 @@ function initEpubjs(file) {
 
 function renderReader() {
     document.querySelector("#main").innerHTML = `
-        <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+        <nav class="navbar" role="navigation" aria-label="main navigation">
             <div class="navbar-brand">
                 <a class="navbar-item" href="https://bulma.io">
                     <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
@@ -256,7 +274,7 @@ function renderReader() {
             </div>
         </nav>
     
-        <div class="columns">
+        <div id="content" class="columns">
             <div class="column">
                 <aside class="menu">
                     <ul class="menu-list"></ul>
@@ -268,7 +286,6 @@ function renderReader() {
             </div>
         </div>
     `;
-    document.documentElement.classList.add("has-navbar-fixed-top");
 }
 
 document.querySelector("#epub_file").addEventListener("change", (e) => {
