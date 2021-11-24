@@ -27,11 +27,12 @@ function displayReaderWithDefaultReadingMode(book, chapter = null) {
         flow: "scrolled-doc",
         width: "100%",
         height: "100%",
-        overflow: "auto"
+        overflow: "auto",
     });
 
     const removePadding = () => {
         document.querySelector(".epub-container").style.paddingBottom = "unset";
+        mapKeys();
     }
 
     let displayed;
@@ -65,6 +66,7 @@ function addEventToTOCEl(rendition, el) {
 
         rendition.display(el.dataset.href).then(() => {
             scrollToChapterId(el.dataset.href);
+            mapKeys();
         });
 
         const $el = $menuList.querySelector(".is-active");
@@ -149,9 +151,9 @@ function initEpubjs(file) {
             let currentChapter = document.querySelector(".is-active");
             if (currentChapter) {
                 currentChapter = currentChapter.dataset.href;
-                rendition.display(currentChapter);
+                rendition.display(currentChapter).then(mapKeys);
             } else {
-                rendition.display();
+                rendition.display().then(mapKeys);
             }
 
 
@@ -179,6 +181,9 @@ function initEpubjs(file) {
             }
 
             isDarkMode = ! isDarkMode;
+
+            document.querySelector("iframe").focus();
+
             return false;
         });
 
@@ -212,6 +217,7 @@ function initEpubjs(file) {
 
                 rendition.display().then(() => {
                     document.querySelector(".epub-container").style.paddingBottom = "50vh";
+                    mapKeys();
                 });
 
                 e.target.innerText = "By Chapter";
@@ -235,8 +241,10 @@ function initEpubjs(file) {
             const nextSection = section.next();
 
             if (nextSection) {
-                rendition.display(nextSection.href);
-                highlightNextOrPreviousChapter(nextSection.href);
+                rendition.display(nextSection.href).then(() => {
+                    highlightNextOrPreviousChapter(nextSection.href);
+                    mapKeys();
+                });
             }
             
             return false;
@@ -248,15 +256,20 @@ function initEpubjs(file) {
             const prevSection = section.prev();
 
             if (prevSection) {
-                rendition.display(prevSection.href);
-                highlightNextOrPreviousChapter(prevSection.href);
+                rendition.display(prevSection.href).then(() => {
+                    highlightNextOrPreviousChapter(prevSection.href);
+                    mapKeys();
+                });
             }
             
             return false;
         });
 
+        mapKeys();
+
     });
 
+    rendition.hooks.render.register(() => mapKeys());
 }
 
 function renderReader() {
@@ -318,6 +331,38 @@ function renderReader() {
             </div>
         </div>
     `;
+}
+
+let gFlag = 0;
+function mapKeys() {
+    const $container = document.querySelector(".epub-container");
+
+    document.querySelectorAll(".epub-view").forEach($epubView => {
+        $epubView.addEventListener("DOMSubtreeModified", e => {
+            mapKeys();
+        });
+    });
+
+    document.querySelectorAll("iframe").forEach($iframe => {
+        $iframe.contentDocument.onkeydown = e => {
+            if (e.key == 'j') {
+                $container.scrollBy(0, 100);
+            } else if (e.key == 'k') {
+                $container.scrollBy(0, -100);
+            } else if (e.key == 'G') {
+                $container.scrollTo(0, $container.scrollHeight);
+            } else if (e.key == 'g') {
+                gFlag++;
+                if (gFlag == 2) {
+                    gFlag = 0;
+                    $container.scrollTo(0, 0);
+                }
+            }
+        };
+
+        $iframe.focus();
+    });
+
 }
 
 document.querySelector("#epub_file").addEventListener("change", (e) => {
