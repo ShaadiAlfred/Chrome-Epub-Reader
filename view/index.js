@@ -95,13 +95,13 @@ function initEpubjs(file) {
             rendition.themes.fontSize(e.target.value);
         });
 
-        // Continuous
+        // Continuous Toggle
         document.querySelector("#continuous").addEventListener("click", (e) => {
             const currentChapter = document.querySelector(".is-active").dataset.href;
 
             if (isContinuous) {
                 cleanReaderElement();
-                rendition = displayReaderWithDefaultReadingMode(book, document.querySelector(".is-active").dataset.href);
+                rendition = displayReaderWithDefaultReadingMode(book, currentChapter);
 
                 e.target.innerText = "Continuous";
             } else {
