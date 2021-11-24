@@ -10,3 +10,4 @@ A simple chrome extension to read epub files. Works offline too!
 - Vim like movements: j, k, gg, G
 
 # Preview
+https://files.catbox.moe/x824vr.mp4
