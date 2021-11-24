@@ -1,0 +1,13 @@
+{
+  "name": "Chrome Epub Reader",
+  "description": "Extension to read epub files with Chrome",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "tabs"
+  ]
+}

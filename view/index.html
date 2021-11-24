@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome Epub Reader - Select a file</title>
+    <link id="bulma" rel="stylesheet" href="/lib/bulma/css/bulma.min.css">
+    <!-- <link id="bulma-dark" rel="stylesheet" href="/lib/bulma/css/bulma-prefers-dark.css"> -->
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div id="main">
+        <div class="columns">
+            <div class="column">
+                <section class="hero is-primary">
+                    <div class="hero-body">
+                        <p class="title has-text-centered">
+                            Select epub file
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="columns is-vcentered is-centered">
+            <div class="file has-name is-boxed">
+                <label class="file-label">
+                    <input
+                        class="file-input"
+                        type="file"
+                        id="epub_file"
+                        accept=".epub">
+                    <span class="file-cta">
+                        <span class="file-icon">
+                            <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">
+                            Choose a file…
+                        </span>
+                    </span>
+                    <span class="file-name">
+                        Please select a file!
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="/view/index.js"></script>
+    <script src="/lib/jszip.min.js"></script>
+    <script src="/lib/epubjs/epub.min.js"></script>
+</body>
+
+</html>

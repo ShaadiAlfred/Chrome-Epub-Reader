@@ -1,0 +1,17 @@
+.file.has-name.is-boxed {
+    min-width: 450px;
+}
+.file-label {
+    min-width: 450px;
+}
+.file-name {
+    max-width: 35em;
+}
+#reader {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+#font-size {
+    margin-top: 8px;
+}
