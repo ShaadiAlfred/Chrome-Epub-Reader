@@ -51,7 +51,10 @@ function addEventToTOCEl(rendition, el) {
             scrollToChapterId(el.dataset.href);
         });
 
-        $menuList.querySelector(".is-active").classList.remove("is-active");
+        const $el = $menuList.querySelector(".is-active");
+        if ($el) {
+            $el.classList.remove("is-active");
+        }
 
         el.classList.add("is-active");
 
@@ -66,6 +69,12 @@ function createAnchorTagsForChapters(rendition, parentEl, chapters, isNested = f
         const $anchor = document.createElement("a");
         $anchor.textContent = chapter.label;
         $anchor.dataset.href = chapter.href;
+
+        let lastIdx = chapter.href.indexOf('#');
+        if (lastIdx == -1) {
+            lastIdx = chapter.href.length;
+        }
+        $anchor.dataset.originalHref = chapter.href.substring(0, lastIdx);
 
         if (!isNested && idx == 0) {
             $anchor.classList.add("is-active");
@@ -86,13 +95,24 @@ function createAnchorTagsForChapters(rendition, parentEl, chapters, isNested = f
 
 }
 
+function highlightNextOrPreviousChapter(newHref) {
+    const $oldEl = document.querySelector(".menu-list .is-active");
+    if ($oldEl) {
+        $oldEl.classList.remove("is-active");
+    }
+
+    const $el = document.querySelector(".menu-list a[data-original-href='" + newHref + "']")
+    if ($el) {
+        $el.classList.add("is-active");
+    }
+}
+
 function initEpubjs(file) {
     const book = ePub(file);
     let rendition = displayReaderWithDefaultReadingMode(book);
     defineThemes(rendition);
 
     book.loaded.navigation.then((toc) => {
-
         // TOC
         const $menuList = document.querySelector(".menu-list");
         createAnchorTagsForChapters(rendition, $menuList, toc);
@@ -126,7 +146,10 @@ function initEpubjs(file) {
 
         // Continuous Toggle
         document.querySelector("#continuous").addEventListener("click", (e) => {
-            const currentChapter = document.querySelector(".is-active").dataset.href;
+            let currentChapter = document.querySelector(".is-active");
+            if (currentChapter) {
+                currentChapter = currentChapter.dataset.href;
+            }
 
             if (isContinuous) {
                 cleanReaderElement(rendition);
@@ -143,7 +166,6 @@ function initEpubjs(file) {
                     height: "fit-content",
                 });
 
-                console.log(currentChapter)
                 const display = rendition.display();
 
                 e.target.innerText = "By Chapter";
@@ -155,6 +177,38 @@ function initEpubjs(file) {
 
             return false;
         });
+
+    });
+
+    rendition.on("rendered", section => {
+
+        // Next and Previous Buttons
+        document.querySelector("#next-chapter").addEventListener("click", (e) => {
+            e.preventDefault();
+
+            const nextSection = section.next();
+
+            if (nextSection) {
+                rendition.display(nextSection.href);
+                highlightNextOrPreviousChapter(nextSection.href);
+            }
+            
+            return false;
+        });
+
+        document.querySelector("#previous-chapter").addEventListener("click", (e) => {
+            e.preventDefault();
+
+            const prevSection = section.prev();
+
+            if (prevSection) {
+                rendition.display(prevSection.href);
+                highlightNextOrPreviousChapter(prevSection.href);
+            }
+            
+            return false;
+        });
+
     });
 
 }
@@ -178,6 +232,20 @@ function renderReader() {
             </div>
 
             <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a id="previous-chapter" class="button is-secondary">
+                            <strong>◀</strong>
+                        </a>
+                    </div>
+                </div>
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a id="next-chapter" class="button is-secondary">
+                            <strong>▶</strong>
+                        </a>
+                    </div>
+                </div>
                 <div class="navbar-item">
                     <div class="buttons">
                         <a id="dark-mode-toggle" class="button is-primary">
